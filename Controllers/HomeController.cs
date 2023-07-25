@@ -49,10 +49,29 @@ namespace WebScanBarcode.Controllers
             string cell = text[1].Trim();
             string station = text[2].Trim();
             string ten = text[3].Trim();
-
             var dulieuvitri = await db.Layouts.Where(x => (x.Model == model && x.Cell == cell && x.Station == station && x.PhanLoai == ten)).ToListAsync();
-
             return Json(dulieuvitri);
+        }
+
+        public async Task<IActionResult> CheckingVattuthuve(string vattuthuve)
+        {
+            string[] text = vattuthuve.Split(';');
+            string tenvattuthuve = text[0].Trim();
+            var dulieu = await db.DataRules.Where(x => x.BarcodeTen.Contains(tenvattuthuve)).FirstOrDefaultAsync();
+            return Json(dulieu);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> updateStatus(string status, string thoigianbaoloi, string model, string cell, string station, string phanloai)
+        {
+            var layout = db.Layouts.Where(s => (s.Model == model && s.Cell == cell && s.Station == station && s.PhanLoai == phanloai)).FirstOrDefault();
+            if (layout != null)
+            {
+                layout.TrangThai = status;
+                layout.ThoiGianBao = thoigianbaoloi;
+            }
+            await db.SaveChangesAsync();
+            return Json(new { success = "đã cập nhật trạng thái tại bảng Layout trong database thành công!" });
         }
 
         public IActionResult Privacy()

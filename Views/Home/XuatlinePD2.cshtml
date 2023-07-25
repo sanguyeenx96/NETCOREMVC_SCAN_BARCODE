@@ -1,10 +1,13 @@
 ﻿@section Scripts{
     <script>
         $(document).ready(function () {
-            console.log("ok")
+            var step = 1;
+            var model = '';
+            var cell = '';
+            var station = '';
+
             $("#theinput").attr("placeholder", "Quét mã người thao tác...");
             $("#theinput").keydown(function (e) {
-                var step = 1;
                 if (e.keyCode === 13) {
                     var inputValue = $(this).val().toLowerCase(); //lấy giá trị của Input
                     console.log(inputValue)
@@ -24,7 +27,7 @@
                                     $('.btn-danger').trigger('click');
                                     $("#theinput").val('');
                                     step = 1;
-                                    console.log(step);
+                                    console.log("Step " + step + " Không có dữ liệu");
                                 }
                                 else {
                                     console.log("Xin chào, " + result);
@@ -36,12 +39,20 @@
                                     });
                                     $("#theinput").val('');
                                     step = 2;
-                                    console.log(step);
+                                    console.log("Step " + step + " Load ok!");
                                     $("#theinput").attr("placeholder", "Quét mã vị trí...");
+                                    $('#nutstep').text('Step2');
                                 }
                             },
                             error: function (xhr, status, error) {
                                 console.log(error);
+                                console.log("Không có mã NV " + inputValue + " trong database")
+                                var notifyMsg = "<i class='icon-remove-sign me-1'></i> Không có dữ liệu người này!";
+                                $('.btn-danger').attr('data-notify-msg', notifyMsg);
+                                $('.btn-danger').trigger('click');
+                                $("#theinput").val('');
+                                step = 1;
+                                console.log("Step " + step + " Lỗi get");
                             }
                         });
                     }
@@ -63,27 +74,107 @@
                                     console.log(step);
                                 }
                                 else {
-                                    console.log("Xin chào, " + result);
-                                    $('#tenOP').val(result.toUpperCase());
-                                    $('#icontenOP').removeClass("icon-info-circle");
-                                    $('#icontenOP').addClass("icon-ok-sign");
-                                    $('#icontenOP').css({
+                                    $('#tenVitri').val("Đã xác định vị trí");
+                                    $('#tenVitri').css({
+                                        color: "green"
+                                    });
+                                    $('#iconTenvitri').removeClass("icon-info-circle");
+                                    $('#iconTenvitri').addClass("icon-ok-sign");
+                                    $('#iconTenvitri').css({
                                         color: "green"
                                     });
                                     $("#theinput").val('');
-                                    step = 2;
-                                    console.log(step);
-                                    $("#theinput").attr("placeholder", "Quét mã vị trí...");
+                                    step = 3;
+                                    console.log("Step " + step + " Load vị trí ok!");
+                                    $("#theinput").attr("placeholder", "Quét mã ống thu về...");
+                                    $('#nutstep').text('Step3');
+                                    console.log(result);
                                 }
                             },
                             error: function (xhr, status, error) {
                                 console.log(error);
+                                console.log("Không có thông tin vị trí " + inputValue + " trong database")
+                                var notifyMsg = "<i class='icon-remove-sign me-1'></i> Không có dữ liệu vị trí này!";
+                                $('.btn-danger').attr('data-notify-msg', notifyMsg);
+                                $('.btn-danger').trigger('click');
+                                $("#theinput").val('');
+                                step = 2;
+                                console.log(step);
                             }
                         });
                     }
+                    if (step == 3) {
+                        $.ajax({
+                            url: "/Home/CheckingVattuthuve",
+                            type: "GET",
+                            data: "vattuthuve=" + inputValue,
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (result) {
+                                if (result == null) {
+                                    console.log("Không thông tin vật tư " + inputValue + " trong database")
+                                    var notifyMsg = "<i class='icon-remove-sign me-1'></i> Không có dữ liệu vật tư này!";
+                                    $('.btn-danger').attr('data-notify-msg', notifyMsg);
+                                    $('.btn-danger').trigger('click');
+                                    $("#theinput").val('');
+                                    step = 3;
+                                    console.log(step);
+                                }
+                                else {
+                                    console.log(result);
+                                    var tenvattuthuve = result.ten;
+                                    $('#tenVattuthuve').val(tenvattuthuve);
+                                    $('#iconTenvattuthuve').removeClass("icon-info-circle");
+                                    $('#iconTenvattuthuve').addClass("icon-ok-sign");
+                                    $('#iconTenvattuthuve').css({
+                                        color: "green"
+                                    });
+                                    $("#theinput").val('');
+                                    step = 4;
+                                    console.log("Step " + step + " Load tên vật tư thu về ok!");
 
+                                    //$.ajax({
+                                    //    url: "/Home/luuNG",
+                                    //    type: "POST",
+                                    //    data: { 
+                                    //        status: 'OK',
+                                    //        thoigianbaoloi: '',
+                                    //        model: '',
+                                    //        cell: '',
+                                    //        station: '',
+                                    //        thoigianbaoloi: '',
+                                    //        thoigianbaoloi: '',
+                                    //        thoigianbaoloi: '',
+                                    //        thoigianbaoloi: '',
 
+                                    //    },
+                                    //    contentType: "application/json; charset=utf-8",
+                                    //    dataType: "json",
+                                    //    success: function (result) {
+                                    //        console.log(result.cell);
+                                    //        $("#theinput").attr("placeholder", "Quét mã ống xuất ra...");
+                                    //        $('#nutstep').text('Step4');
+                                    //    },
+                                    //    error: function (xhr, status, error) {
+                                    //        console.log(error);
+                                    //    }
+                                    //});
 
+                                    
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.log(error);
+                                console.log("Không có thông tin vị trí " + inputValue + " trong database")
+                                var notifyMsg = "<i class='icon-remove-sign me-1'></i> Không có dữ liệu vật tư này!";
+                                $('.btn-danger').attr('data-notify-msg', notifyMsg);
+                                $('.btn-danger').trigger('click');
+                                $("#theinput").val('');
+                                step = 3;
+                                console.log(step);
+                            }
+                        });
+                    }
                     //$("#inputMaop").attr("id", "inputMavitri");
                 }
             });
@@ -102,7 +193,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-2">
-                            <button id="nutstep" class="btn btn-warning" disabled><small>Step1</small></button>
+                            <button id="nutstep" class="btn btn-warning" disabled>Step1</button>
                         </div>
                         <div class="col-10">
                             <input id="theinput" type="text" class="form-control shadow" autofocus>
@@ -130,35 +221,69 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td class="col-5"><i class="icon-info-circle"></i> Vật tư thu về</td>
-                                <td style="text-align:center">...</td>
+                                <td class="col-5" style="vertical-align:middle">
+                                    <i id="iconTenvitri" class="icon-info-circle"></i>
+                                    Vị trí
+                                </td>
+                                <td style="text-align:center">
+                                    <input id="tenVitri" class="form-control" style="text-align:center; font-weight:700" readonly="readonly"></input>
+                                </td>
                             </tr>
                             <tr>
-                                <td class="col-5"><i class="icon-info-circle"></i> Vật tư xuất ra</td>
-                                <td style="text-align:center">...</td>
+                                <td class="col-5" style="vertical-align:middle">
+                                    <i id="iconTenvattuthuve" class="icon-info-circle"></i> 
+                                    Vật tư thu về
+                                </td>
+                                <td style="text-align:center">
+                                    <input id="tenVattuthuve" class="form-control" style="text-align:center; font-weight:700" readonly="readonly"></input>
+                                </td>
                             </tr>
                             <tr>
-                                <td class="col-5"><i class="icon-info-circle"></i> Đơn vị</td>
-                                <td style="text-align:center">...</td>
+                                <td class="col-5" style="vertical-align:middle">
+                                    <i id="iconTenvattuxuatra" class="icon-info-circle"></i>
+                                    Vật tư xuất ra
+                                </td>
+                                <td style="text-align:center">
+                                    <input id="tenVattuxuatra" class="form-control" style="text-align:center; font-weight:700" readonly="readonly"></input>
+                                </td>                              
                             </tr>
                             <tr>
-                                <td class="col-5"><i class="icon-info-circle"></i> Số lượng xuất</td>
-                                <td style="text-align:center">...</td>
+                                <td class="col-5" style="vertical-align:middle">
+                                    <i id="iconDonvi" class="icon-info-circle"></i>
+                                    Đơn vị
+                                </td>
+                                <td style="text-align:center">
+                                    <input id="tenDonvi" class="form-control" style="text-align:center; font-weight:700" readonly="readonly"></input>
+                                </td>
                             </tr>
                             <tr>
-                                <td class="col-5"><i class="icon-info-circle"></i> LotNo</td>
-                                <td style="text-align:center">...</td>
+                                <td class="col-5" style="vertical-align:middle">
+                                    <i id="iconSoluongxuat" class="icon-info-circle"></i>
+                                    Số lượng xuất
+                                </td>
+                                <td style="text-align:center">
+                                    <input id="tenSoluongxuat" class="form-control" style="text-align:center; font-weight:700" readonly="readonly"></input>
+                                </td>                                
+                            </tr>
+                            <tr>
+                                <td class="col-5" style="vertical-align:middle">
+                                    <i id="iconLotNo" class="icon-info-circle"></i>
+                                    LotNo
+                                </td>
+                                <td style="text-align:center">
+                                    <input id="tenLotNo" class="form-control" style="text-align:center; font-weight:700" readonly="readonly"></input>
+                                </td>                         
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-        <div class="col-5" style="text-align:center">
-            <button type="button" class="btn btn-danger btn-lg w-100 "><i class="icon-repeat"></i></button>
+        <div class="col-4" style="text-align:center">
+            <button type="button" class="btn  btn-lg w-100 btn-outline-danger"><i class="icon-trash"></i></button>
         </div>
-        <div class="col-7" style="text-align:center">
-            <button type="button" class="btn btn-success btn-lg w-100 ">Hoàn thành</button>
+        <div class="col-8" style="text-align:center">
+            <button type="button" class="btn btn-success btn-lg w-100" disabled>Hoàn thành</button>
         </div>
     </div>
 
