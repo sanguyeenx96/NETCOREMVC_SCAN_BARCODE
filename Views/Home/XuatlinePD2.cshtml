@@ -1,0 +1,166 @@
+﻿@section Scripts{
+    <script>
+        $(document).ready(function () {
+            console.log("ok")
+            $("#theinput").attr("placeholder", "Quét mã người thao tác...");
+            $("#theinput").keydown(function (e) {
+                var step = 1;
+                if (e.keyCode === 13) {
+                    var inputValue = $(this).val().toLowerCase(); //lấy giá trị của Input
+                    console.log(inputValue)
+                    console.log("press enter!")
+                    if (step == 1) {
+                        $.ajax({
+                            url: "/Home/CheckingOP",
+                            type: "GET",
+                            data: "opId=" + inputValue,
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (result) {
+                                if (result == null) {
+                                    console.log("Không có mã NV " + inputValue + " trong database")
+                                    var notifyMsg = "<i class='icon-remove-sign me-1'></i> Không có dữ liệu người này!";
+                                    $('.btn-danger').attr('data-notify-msg', notifyMsg);
+                                    $('.btn-danger').trigger('click');
+                                    $("#theinput").val('');
+                                    step = 1;
+                                    console.log(step);
+                                }
+                                else {
+                                    console.log("Xin chào, " + result);
+                                    $('#tenOP').val(result.toUpperCase());
+                                    $('#icontenOP').removeClass("icon-info-circle");
+                                    $('#icontenOP').addClass("icon-ok-sign");
+                                    $('#icontenOP').css({
+                                        color: "green"
+                                    });
+                                    $("#theinput").val('');
+                                    step = 2;
+                                    console.log(step);
+                                    $("#theinput").attr("placeholder", "Quét mã vị trí...");
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.log(error);
+                            }
+                        });
+                    }
+                    if (step == 2) {
+                        $.ajax({
+                            url: "/Home/CheckingVitri",
+                            type: "GET",
+                            data: "vitri=" + inputValue,
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (result) {
+                                if (result == null) {
+                                    console.log("Không thông tin vị trí " + inputValue + " trong database")
+                                    var notifyMsg = "<i class='icon-remove-sign me-1'></i> Không có dữ liệu vị trí này!";
+                                    $('.btn-danger').attr('data-notify-msg', notifyMsg);
+                                    $('.btn-danger').trigger('click');
+                                    $("#theinput").val('');
+                                    step = 2;
+                                    console.log(step);
+                                }
+                                else {
+                                    console.log("Xin chào, " + result);
+                                    $('#tenOP').val(result.toUpperCase());
+                                    $('#icontenOP').removeClass("icon-info-circle");
+                                    $('#icontenOP').addClass("icon-ok-sign");
+                                    $('#icontenOP').css({
+                                        color: "green"
+                                    });
+                                    $("#theinput").val('');
+                                    step = 2;
+                                    console.log(step);
+                                    $("#theinput").attr("placeholder", "Quét mã vị trí...");
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.log(error);
+                            }
+                        });
+                    }
+
+
+
+                    //$("#inputMaop").attr("id", "inputMavitri");
+                }
+            });
+        });
+    </script>
+}
+
+    <style>
+        .content-wrap {
+            padding: 20px 0;
+        }
+    </style>
+    <div class="row">
+        <div class="col-12">
+            <div class="card gradient-grey-orange">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-2">
+                            <button id="nutstep" class="btn btn-warning" disabled><small>Step1</small></button>
+                        </div>
+                        <div class="col-10">
+                            <input id="theinput" type="text" class="form-control shadow" autofocus>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12" style="margin-block:10px">
+            <div class="card">
+                <div class="card-header" style="text-align:center">
+                    <i class="icon-clipboard2"></i>
+                    Thông tin dữ liệu
+                </div>
+                <div class="card-body">
+                    <table class="table mb-0" style="font-size:small;">
+                        <tbody>
+                            <tr>
+                                <td class="col-5" style="vertical-align:middle">
+                                    <i id="icontenOP" class="icon-info-circle"></i>
+                                    Người thực hiện
+                                </td>
+                                <td style="text-align:center">
+                                    <input id="tenOP" class="form-control" style="text-align:center; font-weight:700" readonly="readonly"></input>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="col-5"><i class="icon-info-circle"></i> Vật tư thu về</td>
+                                <td style="text-align:center">...</td>
+                            </tr>
+                            <tr>
+                                <td class="col-5"><i class="icon-info-circle"></i> Vật tư xuất ra</td>
+                                <td style="text-align:center">...</td>
+                            </tr>
+                            <tr>
+                                <td class="col-5"><i class="icon-info-circle"></i> Đơn vị</td>
+                                <td style="text-align:center">...</td>
+                            </tr>
+                            <tr>
+                                <td class="col-5"><i class="icon-info-circle"></i> Số lượng xuất</td>
+                                <td style="text-align:center">...</td>
+                            </tr>
+                            <tr>
+                                <td class="col-5"><i class="icon-info-circle"></i> LotNo</td>
+                                <td style="text-align:center">...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-5" style="text-align:center">
+            <button type="button" class="btn btn-danger btn-lg w-100 "><i class="icon-repeat"></i></button>
+        </div>
+        <div class="col-7" style="text-align:center">
+            <button type="button" class="btn btn-success btn-lg w-100 ">Hoàn thành</button>
+        </div>
+    </div>
+
+
+    <a class="btn btn-danger me-2" data-notify-type="error" data-notify-msg="" onclick="SEMICOLON.widget.notifications({ el: this }); return false;" hidden></a>

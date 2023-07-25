@@ -1,0 +1,96 @@
+﻿<style>
+    .content-wrap {
+        position: relative;
+        padding: 0px 0;
+        overflow: hidden;
+    }
+</style>
+<div class="form-widget">
+	<form class="row" id="checkout-form" action="include/form.php" method="post" enctype="multipart/form-data">
+		<div class="form-process">
+			<div class="css3-spinner">
+				<div class="css3-spinner-scaler"></div>
+			</div>
+		</div>
+		<div class="col-lg-12">
+			<div class="row checkout-form-billing">
+				<div class="col-12 form-group">
+					<label>Người thực hiện:</label>
+					<input type="text" name="checkout-form-billing-name" id="checkout-form-billing-name" class="form-control required" value="" placeholder="Mã người thực hiện...">
+				</div>
+				<div class="col-12 form-group">
+					<label>Vị trí:</label>
+					<input type="email" name="checkout-form-billing-email" id="checkout-form-billing-email" class="form-control required" value="" placeholder="Mã vị trí...">
+				</div>
+				<div class="col-6 form-group">
+					<label>Vật tư thu về:</label><br>
+					<input type="text" name="checkout-form-billing-company" id="checkout-form-billing-company" class="form-control" value="" placeholder="Mã vật tư thu về...">
+				</div>
+				<div class="col-6 form-group">
+					<label>Vật tư xuất ra:</label><br>
+					<input type="text" name="checkout-form-billing-company" id="checkout-form-billing-company" class="form-control" value="" placeholder="Mã vật tư xuất ra...">
+				</div>
+				<div class="col-12 form-group">
+					<label>Đơn vị:</label>
+					<select class="form-select required" name="checkout-form-billing-country" id="checkout-form-billing-country">
+						<option value="">Chọn đơn vị...</option>
+						<option value="AF">Kg</option>
+						<option value="AL">Chai</option>
+						<option value="DZ">L</option>
+						<option value="AD">Pcs</option>
+						<option value="AO">Sheet</option>
+						<option value="AI">1/4 SHEET</option>
+						<option value="AQ">PAIR</option>
+					</select>
+				</div>
+				<div class="col-12 form-group">
+					<label>Số lượng xuất:</label>
+				</div>
+				<div class="col-12 form-group">
+					<label>Lot No:</label>
+					<input type="text" name="checkout-form-billing-apartment" id="checkout-form-billing-apartment" class="form-control required" value="">
+				</div>
+				<div class="col-12 form-group">
+					<label>City:</label>
+					<input type="text" name="checkout-form-billing-city" id="checkout-form-billing-city" class="form-control required" value="">
+				</div>
+				<div class="col-12 form-group">
+					<label>Post Code:</label>
+					<input type="text" name="checkout-form-billing-post-code" id="checkout-form-billing-post-code" class="form-control required" value="">
+				</div>
+				<div class="col-12 form-group">
+					<label>Phone:</label><br>
+					<input type="text" name="checkout-form-billing-phone" id="checkout-form-billing-phone" class="form-control required" value="" placeholder="02-232-2424">
+				</div>
+			</div>
+		</div>
+		<div class="col-12">
+			<div class="form-group center">
+				<button type="submit" name="checkout-form-submit" class="btn btn-lg btn-secondary">Checkout</button>
+			</div>
+		</div>
+	</form>
+
+</div>
+
+
+
+
+<section id="page-title">
+	<div class="container clearfix">
+		<h1>Checking</h1>
+	</div>
+</section>
+<!-- Content
+============================================= -->
+<section id="content">
+	<div class="content-wrap">
+		<div class="container clearfix">
+			<div class="row col-mb-50 mb-0">
+				<div class="col-12" style="text-align:center">
+					<a asp-action="Index" class="button button-xlarge button-circle button-3d button-green "><i class="icon-barcode"></i>Bắt đầu quét mã</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</section><!-- #content end -->
