@@ -2,16 +2,17 @@
     <script>
         $(document).ready(function () {
             var step = 1;
-            var model = '';
-            var cell = '';
-            var station = '';
-
+            var ten_model = '';
+            var ten_cell = '';
+            var ten_station = '';
+            var ten_phanloai = '';
+            var ma_nguoithaotac = '';
             $("#theinput").attr("placeholder", "Quét mã người thao tác...");
             $("#theinput").keydown(function (e) {
                 if (e.keyCode === 13) {
                     var inputValue = $(this).val().toLowerCase(); //lấy giá trị của Input
                     console.log(inputValue)
-                    console.log("press enter!")
+                    console.log("Pressed enter!")
                     if (step == 1) {
                         $.ajax({
                             url: "/Home/CheckingOP",
@@ -22,12 +23,9 @@
                             success: function (result) {
                                 if (result == null) {
                                     console.log("Không có mã NV " + inputValue + " trong database")
-                                    var notifyMsg = "<i class='icon-remove-sign me-1'></i> Không có dữ liệu người này!";
-                                    $('.btn-danger').attr('data-notify-msg', notifyMsg);
                                     $('.btn-danger').trigger('click');
                                     $("#theinput").val('');
                                     step = 1;
-                                    console.log("Step " + step + " Không có dữ liệu");
                                 }
                                 else {
                                     console.log("Xin chào, " + result);
@@ -39,20 +37,18 @@
                                     });
                                     $("#theinput").val('');
                                     step = 2;
-                                    console.log("Step " + step + " Load ok!");
+                                    console.log("Done step 1 -> step " + step);
                                     $("#theinput").attr("placeholder", "Quét mã vị trí...");
                                     $('#nutstep').text('Step2');
+                                    ma_nguoithaotac = inputValue;
                                 }
                             },
                             error: function (xhr, status, error) {
                                 console.log(error);
                                 console.log("Không có mã NV " + inputValue + " trong database")
-                                var notifyMsg = "<i class='icon-remove-sign me-1'></i> Không có dữ liệu người này!";
-                                $('.btn-danger').attr('data-notify-msg', notifyMsg);
-                                $('.btn-danger').trigger('click');
+                                $('.btn-warning').trigger('click');
                                 $("#theinput").val('');
                                 step = 1;
-                                console.log("Step " + step + " Lỗi get");
                             }
                         });
                     }
@@ -64,20 +60,19 @@
                             contentType: "application/json; charset=utf-8",
                             dataType: "json",
                             success: function (result) {
-                                if (result == null) {
+                                if (result == null || result.length == 0) {
                                     console.log("Không thông tin vị trí " + inputValue + " trong database")
-                                    var notifyMsg = "<i class='icon-remove-sign me-1'></i> Không có dữ liệu vị trí này!";
-                                    $('.btn-danger').attr('data-notify-msg', notifyMsg);
                                     $('.btn-danger').trigger('click');
                                     $("#theinput").val('');
                                     step = 2;
-                                    console.log(step);
                                 }
                                 else {
-                                    $('#tenVitri').val("Đã xác định vị trí");
-                                    $('#tenVitri').css({
-                                        color: "green"
-                                    });
+                                    console.log(result);
+                                    ten_model = result[0].model;
+                                    ten_cell = result[0].cell;
+                                    ten_station = result[0].station;
+                                    ten_phanloai = result[0].phanLoai;
+                                    $('#tenVitri').val(ten_model + " - " + ten_cell + " - " + ten_station);
                                     $('#iconTenvitri').removeClass("icon-info-circle");
                                     $('#iconTenvitri').addClass("icon-ok-sign");
                                     $('#iconTenvitri').css({
@@ -85,21 +80,17 @@
                                     });
                                     $("#theinput").val('');
                                     step = 3;
-                                    console.log("Step " + step + " Load vị trí ok!");
+                                    console.log("Done step 2 -> step " + step);
                                     $("#theinput").attr("placeholder", "Quét mã ống thu về...");
                                     $('#nutstep').text('Step3');
-                                    console.log(result);
                                 }
                             },
                             error: function (xhr, status, error) {
                                 console.log(error);
                                 console.log("Không có thông tin vị trí " + inputValue + " trong database")
-                                var notifyMsg = "<i class='icon-remove-sign me-1'></i> Không có dữ liệu vị trí này!";
-                                $('.btn-danger').attr('data-notify-msg', notifyMsg);
-                                $('.btn-danger').trigger('click');
+                                $('.btn-warning').trigger('click');
                                 $("#theinput").val('');
                                 step = 2;
-                                console.log(step);
                             }
                         });
                     }
@@ -112,13 +103,56 @@
                             dataType: "json",
                             success: function (result) {
                                 if (result == null) {
-                                    console.log("Không thông tin vật tư " + inputValue + " trong database")
-                                    var notifyMsg = "<i class='icon-remove-sign me-1'></i> Không có dữ liệu vật tư này!";
-                                    $('.btn-danger').attr('data-notify-msg', notifyMsg);
+                                    console.log("Không có thông tin vật tư " + inputValue + " trong database");
                                     $('.btn-danger').trigger('click');
                                     $("#theinput").val('');
-                                    step = 3;
-                                    console.log(step);
+                                    $.ajax({
+                                        url: "/Home/updateStatus",
+                                        type: "POST",
+                                        data: {
+                                            status: "OK",
+                                            thoigianbaoloi: '@DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")',
+                                            model: ten_model,
+                                            cell: ten_cell,
+                                            station: ten_station,
+                                            phanloai: ten_phanloai
+                                        },
+                                        success: function (result) {
+                                            console.log(result);
+                                            console.log("Đã cập nhật trạng thái bảng Layout trong database thành NG");
+                                            step = 3;
+                                        },
+                                        error: function (xhr, status, error) {
+                                            console.log(error);
+                                            console.log("Không cập nhật được trạng thái bảng Layout trong database thành NG");
+                                            step = 3;
+                                        }
+                                    });
+                                    $.ajax({
+                                        url: "/Home/Luulichsu_Xuatline",
+                                        type: "POST",
+                                        data: {
+                                            tenvattuthuve: inputValue,
+                                            tenvattuphatra: "",
+                                            soluongxuatline: "0",
+                                            ngayxuat: "@DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")",
+                                            nguoixuat: ma_nguoithaotac,
+                                            donvi: "",
+                                            tontu: "0",
+                                            vitri: ten_model + "," + ten_cell + "," + ten_station,
+                                            result: "NG",
+                                            lotno: "",
+                                            ghichu: ""
+                                        },
+                                        success: function (result) {
+                                            console.log(result);
+                                            step = 3;
+                                        },
+                                        error: function (xhr, status, error) {
+                                            console.log(error);
+                                            step = 3;
+                                        }
+                                    });
                                 }
                                 else {
                                     console.log(result);
@@ -130,48 +164,90 @@
                                         color: "green"
                                     });
                                     $("#theinput").val('');
-                                    step = 4;
-                                    console.log("Step " + step + " Load tên vật tư thu về ok!");
-
-                                    //$.ajax({
-                                    //    url: "/Home/luuNG",
-                                    //    type: "POST",
-                                    //    data: { 
-                                    //        status: 'OK',
-                                    //        thoigianbaoloi: '',
-                                    //        model: '',
-                                    //        cell: '',
-                                    //        station: '',
-                                    //        thoigianbaoloi: '',
-                                    //        thoigianbaoloi: '',
-                                    //        thoigianbaoloi: '',
-                                    //        thoigianbaoloi: '',
-
-                                    //    },
-                                    //    contentType: "application/json; charset=utf-8",
-                                    //    dataType: "json",
-                                    //    success: function (result) {
-                                    //        console.log(result.cell);
-                                    //        $("#theinput").attr("placeholder", "Quét mã ống xuất ra...");
-                                    //        $('#nutstep').text('Step4');
-                                    //    },
-                                    //    error: function (xhr, status, error) {
-                                    //        console.log(error);
-                                    //    }
-                                    //});
-
-                                    
+                                    console.log("Model là: " + ten_model)
+                                    console.log("Cell là: " + ten_cell)
+                                    console.log("Station là: " + ten_station)
+                                    $.ajax({
+                                        url: "/Home/updateStatus",
+                                        type: "POST",
+                                        data: {
+                                            status: "OK",
+                                            thoigianbaoloi: "",
+                                            model: ten_model,
+                                            cell: ten_cell,
+                                            station: ten_station,
+                                            phanloai: tenvattuthuve
+                                        },
+                                        success: function (result) {
+                                            console.log(result);
+                                            console.log("Đã cập nhật trạng thái bảng Layout trong database thành OK")
+                                            $("#theinput").val('');
+                                            step = 4;
+                                            console.log("Done step 3 -> step " + step);
+                                            $("#theinput").attr("placeholder", "Quét mã ống xuất ra...");
+                                            $('#nutstep').text('Step4');
+                                        },
+                                        error: function (xhr, status, error) {
+                                            console.log(error);
+                                            console.log("Không cập nhật được trạng thái bảng Layout trong database")
+                                            $('.btn-danger').trigger('click');
+                                            $("#theinput").val('');
+                                            step = 3;
+                                        }
+                                    });
                                 }
                             },
                             error: function (xhr, status, error) {
                                 console.log(error);
-                                console.log("Không có thông tin vị trí " + inputValue + " trong database")
-                                var notifyMsg = "<i class='icon-remove-sign me-1'></i> Không có dữ liệu vật tư này!";
-                                $('.btn-danger').attr('data-notify-msg', notifyMsg);
                                 $('.btn-danger').trigger('click');
                                 $("#theinput").val('');
-                                step = 3;
-                                console.log(step);
+                                $.ajax({
+                                    url: "/Home/updateStatus",
+                                    type: "POST",
+                                    data: {
+                                        status: "OK", // NG
+                                        thoigianbaoloi: '@DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")',
+                                        model: ten_model,
+                                        cell: ten_cell,
+                                        station: ten_station,
+                                        phanloai: ten_phanloai
+                                    },
+                                    success: function (result) {
+                                        console.log(result);
+                                        console.log("Đã cập nhật trạng thái bảng Layout trong database thành NG");
+                                        step = 3;
+                                    },
+                                    error: function (xhr, status, error) {
+                                        console.log(error);
+                                        console.log("Không cập nhật được trạng thái bảng Layout trong database thành NG");
+                                        step = 3;
+                                    }
+                                });
+                                $.ajax({
+                                    url: "/Home/Luulichsu_Xuatline",
+                                    type: "POST",
+                                    data: {
+                                        tenvattuthuve: inputValue,
+                                        tenvattuphatra: "",
+                                        soluongxuatline: "0",
+                                        ngayxuat: "@DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")",
+                                        nguoixuat: ma_nguoithaotac,
+                                        donvi: "",
+                                        tontu: "0",
+                                        vitri: ten_model + "," + ten_cell + "," + ten_station,
+                                        result: "NG",
+                                        lotno: "",
+                                        ghichu: ""
+                                    },
+                                    success: function (result) {
+                                        console.log(result);
+                                        step = 3;
+                                    },
+                                    error: function (xhr, status, error) {
+                                        console.log(error);
+                                        step = 3;
+                                    }
+                                });
                             }
                         });
                     }
@@ -181,7 +257,6 @@
         });
     </script>
 }
-
     <style>
         .content-wrap {
             padding: 20px 0;
@@ -217,7 +292,7 @@
                                     Người thực hiện
                                 </td>
                                 <td style="text-align:center">
-                                    <input id="tenOP" class="form-control" style="text-align:center; font-weight:700" readonly="readonly"></input>
+                                    <input id="tenOP" class="form-control" style="text-align:center; font-weight:700" readonly="readonly" />
                                 </td>
                             </tr>
                             <tr>
@@ -226,16 +301,16 @@
                                     Vị trí
                                 </td>
                                 <td style="text-align:center">
-                                    <input id="tenVitri" class="form-control" style="text-align:center; font-weight:700" readonly="readonly"></input>
+                                    <input id="tenVitri" class="form-control" style="text-align:center; font-weight:700" readonly="readonly" />
                                 </td>
                             </tr>
                             <tr>
                                 <td class="col-5" style="vertical-align:middle">
-                                    <i id="iconTenvattuthuve" class="icon-info-circle"></i> 
+                                    <i id="iconTenvattuthuve" class="icon-info-circle"></i>
                                     Vật tư thu về
                                 </td>
                                 <td style="text-align:center">
-                                    <input id="tenVattuthuve" class="form-control" style="text-align:center; font-weight:700" readonly="readonly"></input>
+                                    <input id="tenVattuthuve" class="form-control" style="text-align:center; font-weight:700" readonly="readonly" />
                                 </td>
                             </tr>
                             <tr>
@@ -244,8 +319,8 @@
                                     Vật tư xuất ra
                                 </td>
                                 <td style="text-align:center">
-                                    <input id="tenVattuxuatra" class="form-control" style="text-align:center; font-weight:700" readonly="readonly"></input>
-                                </td>                              
+                                    <input id="tenVattuxuatra" class="form-control" style="text-align:center; font-weight:700" readonly="readonly" />
+                                </td>
                             </tr>
                             <tr>
                                 <td class="col-5" style="vertical-align:middle">
@@ -253,7 +328,7 @@
                                     Đơn vị
                                 </td>
                                 <td style="text-align:center">
-                                    <input id="tenDonvi" class="form-control" style="text-align:center; font-weight:700" readonly="readonly"></input>
+                                    <input id="tenDonvi" class="form-control" style="text-align:center; font-weight:700" readonly="readonly" />
                                 </td>
                             </tr>
                             <tr>
@@ -262,8 +337,8 @@
                                     Số lượng xuất
                                 </td>
                                 <td style="text-align:center">
-                                    <input id="tenSoluongxuat" class="form-control" style="text-align:center; font-weight:700" readonly="readonly"></input>
-                                </td>                                
+                                    <input id="tenSoluongxuat" class="form-control" style="text-align:center; font-weight:700" readonly="readonly" />
+                                </td>
                             </tr>
                             <tr>
                                 <td class="col-5" style="vertical-align:middle">
@@ -271,8 +346,8 @@
                                     LotNo
                                 </td>
                                 <td style="text-align:center">
-                                    <input id="tenLotNo" class="form-control" style="text-align:center; font-weight:700" readonly="readonly"></input>
-                                </td>                         
+                                    <input id="tenLotNo" class="form-control" style="text-align:center; font-weight:700" readonly="readonly" />
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -287,5 +362,23 @@
         </div>
     </div>
 
+@*    <a class="btn btn-danger me-2" data-notify-close="false" data-notify-type="error" data-notify-msg="<i class='icon-line-alert-triangle'> </i> Không tìm thấy dữ liệu phù hợp!" onclick="SEMICOLON.widget.notifications({ el: this }); return false;" hidden></a>
+*@
+@*    <a class="btn btn-warning me-2" data-notify-type="warning" data-notify-msg="<i class='icon-remove-sign me-1'></i> Sai định dạng mã barcode / Mất mạng!" onclick="SEMICOLON.widget.notifications({ el: this }); return false;" hidden></a>
+*@
+    <button class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target=".bs-example-modal-centered" hidden>Vertically centered modal</button>
 
-    <a class="btn btn-danger me-2" data-notify-type="error" data-notify-msg="" onclick="SEMICOLON.widget.notifications({ el: this }); return false;" hidden></a>
+    <div class="modal bs-example-modal-centered" tabindex="-1" role="dialog" aria-labelledby="centerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content  bg-warning">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel" >
+                        <i class='icon-line-alert-triangle'> </i> Cảnh báo
+                    </h4>
+                </div>
+                <div class="modal-body bg-body" style="text-align:center">
+                    <p class="mb-0">Aenean lacinia bibendum nulla sed consectetur. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec sed odio dui. Donec ullamcorper nulla non metus auctor fringilla.</p>
+                </div>
+            </div>
+        </div>
+    </div>
