@@ -326,17 +326,13 @@ namespace WebScanBarcode.Models
 
             modelBuilder.Entity<Layout>(entity =>
             {
-                entity.HasNoKey();
-
                 entity.ToTable("layout");
+
+                entity.Property(e => e.Id).HasColumnName("ID");
 
                 entity.Property(e => e.Cell).HasMaxLength(100);
 
                 entity.Property(e => e.HienTuongLoi).HasMaxLength(500);
-
-                entity.Property(e => e.Id)
-                    .ValueGeneratedOnAdd()
-                    .HasColumnName("ID");
 
                 entity.Property(e => e.LucBanVit).HasMaxLength(50);
 
@@ -735,9 +731,9 @@ namespace WebScanBarcode.Models
 
             modelBuilder.Entity<Lichsuxuatline>(entity =>
             {
-                entity.HasNoKey();
-
                 entity.ToTable("lichsuxuatline");
+
+                entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Donvi)
                     .HasMaxLength(50)
@@ -747,10 +743,6 @@ namespace WebScanBarcode.Models
                 entity.Property(e => e.Ghichu)
                     .HasMaxLength(500)
                     .HasColumnName("ghichu");
-
-                entity.Property(e => e.Id)
-                    .ValueGeneratedOnAdd()
-                    .HasColumnName("id");
 
                 entity.Property(e => e.Lotno)
                     .HasMaxLength(100)
