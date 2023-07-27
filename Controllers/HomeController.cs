@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using WebScanBarcode.Models;
@@ -38,36 +39,62 @@ namespace WebScanBarcode.Controllers
         public async Task<IActionResult> CheckingOP(string opId)
         {
             var nguoithaotac = await db.DataRuleTens.Where(x => x.Idname == opId).FirstOrDefaultAsync();
+            if (nguoithaotac == null)
+            {
+                throw new Exception();
+            }
             string? tenOP = nguoithaotac?.Name;
             return Json(tenOP);
         }
 
         public async Task<IActionResult> CheckingVitri(string vitri)
         {
-            string[] text = vitri.Split(';');
-            string model = text[0].Trim();
-            string cell = text[1].Trim();
-            string station = text[2].Trim();
-            string ten = text[3].Trim();
-            var dulieuvitri = await db.Layouts.Where(x => (x.Model == model && x.Cell == cell && x.Station == station && x.PhanLoai == ten)).ToListAsync();
-            return Json(dulieuvitri);
+            try
+            {
+                string[] text = vitri.Split(';');
+                string model = text[0].Trim();
+                string cell = text[1].Trim();
+                string station = text[2].Trim();
+                string ten = text[3].Trim();
+                var dulieuvitri = await db.Layouts.Where(x => (x.Model == model && x.Cell == cell && x.Station == station && x.PhanLoai == ten)).ToListAsync();
+                return Json(dulieuvitri);
+            }
+            catch
+            {
+                throw new Exception();
+            }
         }
 
         public async Task<IActionResult> CheckingVattuthuve(string vattuthuve)
         {
-            string[] text = vattuthuve.Split(';');
-            string tenvattuthuve = text[0].Trim();
-            var dulieu = await db.DataRules.Where(x => x.BarcodeTen.Contains(tenvattuthuve)).FirstOrDefaultAsync();
-            return Json(dulieu);
+            try
+            {
+                string[] text = vattuthuve.Split(';');
+                string tenvattuthuve = text[0].Trim();
+                TempData["tenvattuthuve"] = tenvattuthuve;
+                var dulieu = await db.DataRules.Where(x => x.BarcodeTen == tenvattuthuve).FirstOrDefaultAsync();
+                if (dulieu != null)
+                {
+                    return Json(dulieu);
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
+            catch
+            {
+                throw new Exception();
+            }
         }
 
         [HttpPost]
         public IActionResult updateStatus(string status, string thoigianbaoloi, string model, string cell, string station, string phanloai)
         {
-            var rowToUpdate = db.Layouts.FirstOrDefault(s => (s.Model == model && s.Cell == cell && s.Station == station && s.PhanLoai == phanloai));
-            if (rowToUpdate != null)
+            try
             {
-                try
+                var rowToUpdate = db.Layouts.FirstOrDefault(s => (s.Model == model && s.Cell == cell && s.Station == station && s.PhanLoai == phanloai));
+                if (rowToUpdate != null)
                 {
                     rowToUpdate.TrangThai = status;
                     rowToUpdate.ThoiGianBao = thoigianbaoloi;
@@ -81,14 +108,14 @@ namespace WebScanBarcode.Controllers
                     db.SaveChanges();
                     return Json(rowToUpdate);
                 }
-                catch
+                else
                 {
-                    return Json(new { error = "cập nhật trạng thái tại bảng Layout trong database không thành công!" });
+                    throw new Exception();
                 }
             }
-            else
+            catch
             {
-                return Json(new { message = "Không tìm thấy dòng dữ liệu cần cập nhật" });
+                throw new Exception();
             }
         }
 
@@ -113,11 +140,56 @@ namespace WebScanBarcode.Controllers
                 lichsu.Ghichu = ghichu;
                 await db.AddAsync(lichsu);
                 await db.SaveChangesAsync();
-                return Json(new { success = "Thêm dữ liệu NG vào bảng lịch sử thành công!" });
+                return Json(new { success = lichsu });
             }
             catch
             {
                 return Json(new { error = "Thêm dữ liệu NG vào bảng lịch sử không thành công!" });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CheckingVattuphatra(string mavattuphatra, string status, string model, string cell, string station,
+            string phanloai, string thoigianbaoloi, string nguoixuat, string vitri, string result)
+        {
+            try
+            {
+                string[] text = mavattuphatra.Split(';');
+                string tenvattuphatra = text[0].Trim();
+                string tenvattuthuve = TempData["tenvattuthuve"].ToString();
+                if (tenvattuthuve != tenvattuphatra) //TRƯỜNG HỢP NG
+                {
+                    //Cập nhật bảng layout
+                    var rowToUpdate = db.Layouts.FirstOrDefault(s => (s.Model == model && s.Cell == cell && s.Station == station && s.PhanLoai == phanloai));
+                    rowToUpdate.TrangThai = status;
+                    rowToUpdate.ThoiGianBao = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+                    db.Entry(rowToUpdate).State = EntityState.Modified;
+                    //Thêm dữ liệu NG vào bàng Líchuxuatline
+                    Lichsuxuatline lichsuNG = new Lichsuxuatline();
+                    lichsuNG.Tenvattuthuve = tenvattuthuve;
+                    lichsuNG.Tenvattuphatra = tenvattuphatra;
+                    lichsuNG.Soluongxuatline = Convert.ToDecimal(0);
+                    lichsuNG.Ngayxuat = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+                    lichsuNG.Nguoixuat = nguoixuat;
+                    lichsuNG.Donvi = "";
+                    lichsuNG.Tontu = Convert.ToDecimal(0);
+                    lichsuNG.Vitri = vitri;
+                    lichsuNG.Result = result;
+                    lichsuNG.Lotno = "";
+                    lichsuNG.Ghichu = "";
+                    await db.AddAsync(lichsuNG);
+                    await db.SaveChangesAsync();
+                    var ketqua = new { mode = "NG", updatelayout = rowToUpdate, addLichsuxuatline = lichsuNG };
+                    return Json(ketqua);
+                }
+                else //TRƯỜNG HỢP OK
+                {
+                    return Json(null);
+                }
+            }
+            catch
+            {
+                throw new Exception();
             }
         }
 
