@@ -1,4 +1,3 @@
-![2](https://github.com/sanguyeenx96/NETCOREMVC_SCAN_BARCODE/assets/103011257/26b4050a-4058-49e2-894d-9a70553940ba)
 # NETCOREMVC_SCAN_BARCODE
 Website cho máy quét barcode (Máy kiểm kho Zebra TC26BK). Có chức năng quét và phân tích mã barcode Nhập xuất của dầu mỡ trong nhà máy để tính toán và lưu dữ liệu vào MSSQL + tra cứu lịch sử.
 
