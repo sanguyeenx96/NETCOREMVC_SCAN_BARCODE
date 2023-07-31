@@ -17,9 +17,9 @@
             var solanbipThuve = 0;
             var solanbipXuatra = 0;
             var soluongxuatline = 0;
-            var ten_donvi ='';
+            var ten_donvi = '';
             var so_tontu = '';
-            var lotno ='';
+            var so_lotno = '';
             //$('#solanbipThuve').val(solanbipThuve);
             //$('#solanbipXuatra').val(solanbipXuatra);
             $("#theinput").attr("placeholder", "Quét mã người thao tác...");
@@ -242,7 +242,7 @@
                                                     else {
                                                         console.log("Can not update status SAI MO for dbo.layout", error);
                                                         step = 3;
-                                                    }                                     
+                                                    }
                                                 }
                                             });
                                             $.ajax({
@@ -275,7 +275,7 @@
                                                     else {
                                                         console.log("Cant update log-NG for bdo.lichsuxuatline", error);
                                                         step = 3;
-                                                    }                                    
+                                                    }
                                                 }
                                             });
                                             console.log("Sai mã vật tư thu về - Mã vật tư thu về và tại bảng layout không trùng!")
@@ -283,7 +283,7 @@
                                             $('.btn-danger').trigger('click');
                                             $("#theinput").val('');
                                             step = 3;
-                                        }                                        
+                                        }
                                     }
                                 });
                             },
@@ -360,7 +360,7 @@
                                     $('.btn-danger').trigger('click');
                                     $("#theinput").val('');
                                     step = 3;
-                                }                                
+                                }
                             }
                         });
                     }
@@ -379,8 +379,8 @@
                                 vitri: ten_model + "," + ten_cell + "," + ten_station,
                                 soluongxuatline: soluongxuatline,
                                 donvi: ten_donvi,
-                                tontu:so_tontu,
-                                lotno:lotno
+                                tontu: so_tontu,
+                                lotno: so_lotno
                             },
                             success: function (ketqua) {
                                 console.log(ketqua);
@@ -424,7 +424,7 @@
                                         $('#solanbip').removeClass("bg-warning text-dark");
                                         $('#solanbip').addClass("bg-success");
                                         step = 5;
-                                        console.log("Done step 4 -> step " + step); 
+                                        console.log("Done step 4 -> step " + step);
                                         $('#divinput').hide();
                                         $("#btnhoanthanh").prop("disabled", false);
 
@@ -442,9 +442,6 @@
                         });
                     }
                 }
-            });
-            $("#btnhoanthanh").click(function () {
-                alert("Nút Hoàn thành đã được nhấp!");
             });
         });
     </script>
@@ -577,36 +574,40 @@
                     </table>
                 </div>
             </div>
-        </div>       
-        <div class="col-12" style="text-align:center">
-            <button id="btnhoanthanh" type="button" class="btn btn-danger btn-lg w-100" disabled>Hoàn thành & lưu dữ liệu</button>
         </div>
+        <div class="col-12" style="text-align:center">
+        @using (Html.BeginForm("Final", "Home", FormMethod.Post))
+        {
+            <button asp-action="Final" id="btnhoanthanh" type="submit" class="btn btn-success shadow btn-lg" disabled><i class="icon-check"> </i> Hoàn thành</button>
+        }
     </div>
+</div>
 
-    <button class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target=".bs-example-modal-centered" hidden>Vertically centered modal</button>
 
-    <div id="modalNG" class="modal bs-example-modal-centered" tabindex="-1" role="dialog" aria-labelledby="centerModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content  bg-danger">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="myModalLabel" style="color:white">
-                        <i class='icon-line-alert-triangle'> </i> Cảnh báo
-                    </h4>
-                </div>
-                <div id="noidungmodal" class="modal-body bg-warning" style="text-align:center">
-                </div>
-                <div class="modal-footer">
-                </div>
+<button class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target=".bs-example-modal-centered" hidden>Vertically centered modal</button>
+
+<div id="modalNG" class="modal bs-example-modal-centered" tabindex="-1" role="dialog" aria-labelledby="centerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content  bg-danger">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel" style="color:white">
+                    <i class='icon-line-alert-triangle'> </i> Cảnh báo
+                </h4>
+            </div>
+            <div id="noidungmodal" class="modal-body bg-warning" style="text-align:center">
+            </div>
+            <div class="modal-footer">
             </div>
         </div>
     </div>
+</div>
 
-    <a id="ok1" data-notify-close="false" data-notify-position="top-center" data-notify-type="success" data-notify-msg="" onclick="SEMICOLON.widget.notifications({ el: this }); return false;" hidden></a>
-    <a id="ok2" data-notify-close="false" data-notify-position="top-center" data-notify-type="success" data-notify-msg="<i class='icon-ok' /> Xác định vị trí thành công!" onclick="SEMICOLON.widget.notifications({ el: this }); return false;" hidden></a>
+<a id="ok1" data-notify-close="false" data-notify-position="top-center" data-notify-type="success" data-notify-msg="" onclick="SEMICOLON.widget.notifications({ el: this }); return false;" hidden></a>
+<a id="ok2" data-notify-close="false" data-notify-position="top-center" data-notify-type="success" data-notify-msg="<i class='icon-ok' /> Xác định vị trí thành công!" onclick="SEMICOLON.widget.notifications({ el: this }); return false;" hidden></a>
 
 
 
-    @*
+@*
                             Hiện modal block => không tắt đc
                         var modal = document.querySelector('.bs-example-modal-centered');
                                     // Lấy phần tử chứa nội dung modal

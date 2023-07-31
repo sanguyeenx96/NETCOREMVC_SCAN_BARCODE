@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using WebScanBarcode.Models;
+using static System.Collections.Specialized.BitVector32;
 
 namespace WebScanBarcode.Controllers
 {
@@ -36,8 +37,46 @@ namespace WebScanBarcode.Controllers
             return View();
         }
 
+        public static class MyStringStorage
+        {
+            public static string? ten_vattuthuve { get; set; }
+            public static string? ma_vattuthuve { get; set; }
+            public static string? ten_vattuphatra { get; set; }
+            public static string? ma_vattuphatra { get; set; }
+            public static string? st_model { get; set; }
+            public static string? st_cell { get; set; }
+            public static string? st_station { get; set; }
+            public static string? st_thoigianphatsinhloi { get; set; }
+            public static string? st_thoigiancaitien { get; set; }
+            public static string? st_tinhtrangloi { get; set; }
+            public static string? st_nguyennhanloi { get; set; }
+            public static string? st_caitien { get; set; }
+            public static string? st_damnhiem { get; set; }
+            public static string? st_ghichu { get; set; }
+            public static decimal st_soluong { get; set; }
+            public static string? st_donvi { get; set; }
+        }
+
         public async Task<IActionResult> CheckingOP(string opId)
         {
+            MyStringStorage.ten_vattuthuve = "";
+            MyStringStorage.ma_vattuthuve = "";
+            MyStringStorage.ten_vattuphatra = "";
+            MyStringStorage.ma_vattuphatra = "";
+
+            MyStringStorage.st_model = "";
+            MyStringStorage.st_cell = "";
+            MyStringStorage.st_station = "";
+
+            MyStringStorage.st_thoigianphatsinhloi = "";
+            MyStringStorage.st_thoigiancaitien = "";
+            MyStringStorage.st_tinhtrangloi = "";
+            MyStringStorage.st_nguyennhanloi = "";
+            MyStringStorage.st_caitien = "";
+            MyStringStorage.st_damnhiem = "";
+            MyStringStorage.st_ghichu = "";
+            MyStringStorage.st_soluong = 0;
+            MyStringStorage.st_donvi = "";
             var nguoithaotac = await db.DataRuleTens.Where(x => x.Idname == opId).FirstOrDefaultAsync();
             if (nguoithaotac == null)
             {
@@ -63,6 +102,10 @@ namespace WebScanBarcode.Controllers
                 }
                 else
                 {
+                    MyStringStorage.st_model = model;
+                    MyStringStorage.st_cell = cell;
+                    MyStringStorage.st_station = station;
+
                     return Json(dulieuvitri);
                 }
             }
@@ -70,14 +113,6 @@ namespace WebScanBarcode.Controllers
             {
                 throw new Exception();
             }
-        }
-
-        public static class MyStringStorage
-        {
-            public static string? ten_vattuthuve { get; set; }
-            public static string? ma_vattuthuve { get; set; }
-            public static string? ten_vattuphatra { get; set; }
-            public static string? ma_vattuphatra { get; set; }
         }
 
         public async Task<IActionResult> CheckingVattuthuve(string vattuthuve)
@@ -211,6 +246,9 @@ namespace WebScanBarcode.Controllers
                 }
                 else //TRƯỜNG HỢP OK
                 {
+                    MyStringStorage.st_damnhiem = nguoixuat;
+                    MyStringStorage.st_soluong = soluongxuatline;
+                    MyStringStorage.st_donvi = donvi;
                     var dulieu = await db.DataRules.Where(x => x.BarcodeTen == ma_vattuphatra).FirstOrDefaultAsync();
                     MyStringStorage.ten_vattuphatra = dulieu.Ten.ToString();
                     MyStringStorage.ma_vattuphatra = ma_vattuphatra;
@@ -248,7 +286,64 @@ namespace WebScanBarcode.Controllers
         [HttpPost]
         public async Task<IActionResult> Final()
         {
-            return View();
+            try
+            {
+                string tenThietBiThuVe = MyStringStorage.ten_vattuthuve;
+                string model = MyStringStorage.st_model;
+                string cell = MyStringStorage.st_cell;
+                string station = MyStringStorage.st_station;
+                string thoigianphatsinhloi = MyStringStorage.st_thoigianphatsinhloi;
+                string tenthietbiphatra = MyStringStorage.ten_vattuphatra;
+                string tinhtrangloi = MyStringStorage.st_tinhtrangloi;
+                string nguyennhanloi = MyStringStorage.st_nguyennhanloi;
+                string caitien = MyStringStorage.st_caitien;
+                string damnhiem = MyStringStorage.st_damnhiem;
+                string ghichu = MyStringStorage.st_ghichu;
+                decimal soluong = MyStringStorage.st_soluong;
+                string donvi = MyStringStorage.st_donvi;
+
+                Lichsusuachualoi lichsu = new Lichsusuachualoi();
+                lichsu.TenThietBiThuVe = tenThietBiThuVe;
+                lichsu.Model = model;
+                lichsu.Cell = cell;
+                lichsu.Station = station;
+                lichsu.Thoigianphatsinhloi = thoigianphatsinhloi;
+                lichsu.Thoigiancaitien = DateTime.Now.ToString("dd/MM/yyyy");
+                lichsu.Tenthietbiphatra = tenthietbiphatra;
+                lichsu.Tinhtrangloi = tinhtrangloi;
+                lichsu.Nguyennhanloi = nguyennhanloi;
+                lichsu.Caitien = caitien;
+                lichsu.Damnhiem = damnhiem;
+                lichsu.Ghichu = ghichu;
+                lichsu.SoLuong = soluong;
+                lichsu.DonVi = donvi;
+
+                await db.AddAsync(lichsu);
+                await db.SaveChangesAsync();
+
+                var tonKhoPA = db.TonKhoPas.FirstOrDefault(x => x.Ten == tenthietbiphatra);
+                if (tonKhoPA != null)
+                {
+                    // Cập nhật các trường dữ liệu
+                    //tonKhoPA.SoLuongXuatRaLine += soluong;
+                    //tonKhoPA.TonKhoTong -= soluong;
+                    //tonKhoPA.SoLuongTonTu -= soluong;
+
+                    tonKhoPA.SoLuongXuatRaLine += 0;
+                    tonKhoPA.TonKhoTong -= 0;
+                    tonKhoPA.SoLuongTonTu -= 0;
+
+                    // Lưu thay đổi vào cơ sở dữ liệu
+                    db.Entry(tonKhoPA).State = EntityState.Modified;
+                    await db.SaveChangesAsync();
+                }
+                TempData["success"] = 1;
+                return RedirectToAction("Scan");
+            }
+            catch
+            {
+                throw new Exception();
+            }
         }
 
         public IActionResult Privacy()
