@@ -9,8 +9,8 @@ namespace WebScanBarcode.Models
         public string Ten { get; set; } = null!;
         public string PhanLoai { get; set; } = null!;
         public string Model { get; set; } = null!;
-        public string Cell { get; set; } = null!;
-        public string Station { get; set; } = null!;
+        public string Cell { get; set; }
+        public string Station { get; set; } 
         public string? TrangThai { get; set; }
         public string? ThoiGianBao { get; set; }
         public string? HienTuongLoi { get; set; }

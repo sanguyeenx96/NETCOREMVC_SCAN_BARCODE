@@ -95,6 +95,8 @@ namespace WebScanBarcode.Controllers
                 string cell = text[1].Trim();
                 string station = text[2].Trim();
                 string ten = text[3].Trim();
+                if (cell == null) { cell = ""; }
+                if (station == null) { station = ""; }
                 var dulieuvitri = await db.Layouts.Where(x => (x.Model == model && x.Cell == cell && x.Station == station && x.PhanLoai == ten)).ToListAsync();
                 if (dulieuvitri.Count == 0)
                 {
@@ -151,6 +153,9 @@ namespace WebScanBarcode.Controllers
         {
             try
             {
+                if (cell == null) { cell = ""; }
+                if (station == null) { station = ""; }
+
                 var rowToUpdate = db.Layouts.FirstOrDefault(s => (s.Model == model && s.Cell == cell && s.Station == station && s.PhanLoai == phanloai));
                 if (rowToUpdate != null)
                 {
@@ -213,6 +218,8 @@ namespace WebScanBarcode.Controllers
         {
             try
             {
+                if (cell == null) { cell = ""; }
+                if (station == null) { station = ""; }
                 string[] text = mavattuphatra.Split(';');
                 string ma_vattuphatra = text[0].Trim();
 
